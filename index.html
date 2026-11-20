@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema Académico</title>
+<style>
+  :root{
+    --nav:#16273f; --nav2:#1e3454; --primary:#1f5fae; --primary-d:#174a8a;
+    --bg:#eef1f6; --card:#ffffff; --line:#dde3ec; --text:#1e2a3a; --muted:#6b7688;
+    --ok:#1e8e5a; --okbg:#e5f5ec; --warn:#b4690e; --warnbg:#fdf2e2; --bad:#c0392b; --badbg:#fbe9e7;
+    --accent:#e8a030;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;}
+  body{font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);font-size:14px;}
+  button{font-family:inherit;cursor:pointer;}
+  a{color:var(--primary);text-decoration:none;}
+
+  /* LOGIN */
+  #login{min-height:100vh;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,#16273f 0%,#1f5fae 100%);padding:20px;}
+  .login-card{background:#fff;border-radius:14px;box-shadow:0 20px 50px rgba(0,0,0,.3);width:100%;max-width:820px;overflow:hidden;}
+  .login-head{padding:28px 34px 10px;text-align:center;}
+  .brand{display:flex;align-items:center;justify-content:center;gap:12px;}
+  .logo{width:44px;height:44px;border-radius:10px;background:var(--primary);color:#fff;display:grid;place-items:center;font-weight:800;font-size:20px;}
+  .login-head h1{margin:14px 0 2px;font-size:22px;color:var(--nav);}
+  .login-head p{margin:0;color:var(--muted);}
+  .roles{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:24px 34px 10px;}
+  .role{border:1px solid var(--line);border-radius:12px;padding:18px 12px;text-align:center;background:#fff;transition:.15s;}
+  .role:hover{border-color:var(--primary);box-shadow:0 6px 18px rgba(31,95,174,.15);transform:translateY(-2px);}
+  .role .ic{font-size:30px;margin-bottom:8px;}
+  .role b{display:block;color:var(--nav);}
+  .role small{color:var(--muted);}
+  .login-foot{padding:14px 34px 26px;color:var(--muted);text-align:center;font-size:12.5px;border-top:1px solid var(--line);margin-top:14px;}
+
+  /* APP SHELL */
+  #app{display:none;min-height:100vh;}
+  .shell{display:flex;min-height:100vh;}
+  .sidebar{width:240px;background:var(--nav);color:#c8d3e4;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;}
+  .sb-brand{display:flex;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid #26405f;}
+  .sb-brand .logo{width:34px;height:34px;font-size:16px;}
+  .sb-brand span{color:#fff;font-weight:700;font-size:15px;line-height:1.1;}
+  .sb-role{padding:12px 18px;font-size:11.5px;letter-spacing:.5px;text-transform:uppercase;color:#7f93b0;}
+  .menu{list-style:none;margin:0;padding:0 8px;flex:1;overflow:auto;}
+  .menu li{margin:2px 0;}
+  .menu a{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;color:#c8d3e4;font-size:13.5px;}
+  .menu a .mi{width:20px;text-align:center;}
+  .menu a:hover{background:#21395a;color:#fff;}
+  .menu a.active{background:var(--primary);color:#fff;font-weight:600;}
+  .sb-foot{padding:14px 18px;border-top:1px solid #26405f;font-size:11.5px;color:#7f93b0;}
+
+  .main{flex:1;display:flex;flex-direction:column;min-width:0;}
+  .topbar{height:60px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:5;}
+  .crumbs{color:var(--muted);font-size:13px;}
+  .crumbs b{color:var(--text);}
+  .user{display:flex;align-items:center;gap:12px;}
+  .avatar{width:36px;height:36px;border-radius:50%;background:var(--primary);color:#fff;display:grid;place-items:center;font-weight:700;}
+  .user .u-name{font-weight:600;font-size:13px;}
+  .user .u-role{font-size:11.5px;color:var(--muted);}
+  .btn-out{border:1px solid var(--line);background:#fff;color:var(--muted);border-radius:8px;padding:7px 12px;font-size:12.5px;}
+  .btn-out:hover{background:var(--bg);}
+
+  .content{padding:26px 28px;flex:1;}
+  .page-title{font-size:20px;font-weight:700;margin:0 0 4px;color:var(--nav);}
+  .page-sub{color:var(--muted);margin:0 0 20px;}
+
+  /* COMPONENTS */
+  .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;}
+  .stat .s-ic{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;font-size:20px;margin-bottom:10px;}
+  .stat .s-val{font-size:26px;font-weight:800;color:var(--nav);line-height:1;}
+  .stat .s-lab{color:var(--muted);font-size:12.5px;margin-top:4px;}
+
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:20px;overflow:hidden;}
+  .panel-h{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--line);}
+  .panel-h h3{margin:0;font-size:15px;color:var(--nav);}
+  .panel-b{padding:16px 18px;}
+  .panel-b.flush{padding:0;}
+
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th,td{text-align:left;padding:11px 16px;border-bottom:1px solid var(--line);}
+  th{background:#f6f8fb;color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.3px;}
+  tbody tr:hover{background:#f7f9fc;}
+  td.actions{white-space:nowrap;}
+
+  .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:600;}
+  .b-ok{background:var(--okbg);color:var(--ok);}
+  .b-warn{background:var(--warnbg);color:var(--warn);}
+  .b-bad{background:var(--badbg);color:var(--bad);}
+  .b-info{background:#e7f0fb;color:var(--primary);}
+  .b-gray{background:#eceff3;color:var(--muted);}
+
+  .btn{border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:600;}
+  .btn-p{background:var(--primary);color:#fff;}
+  .btn-p:hover{background:var(--primary-d);}
+  .btn-s{background:#fff;border:1px solid var(--line);color:var(--text);}
+  .btn-s:hover{background:var(--bg);}
+  .btn-sm{padding:6px 11px;font-size:12px;}
+  .btn-link{background:none;border:none;color:var(--primary);padding:4px 6px;font-weight:600;font-size:12.5px;}
+  .btn-link:hover{text-decoration:underline;}
+
+  .toolbar{display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap;}
+  .search{flex:1;min-width:200px;position:relative;}
+  .search input{width:100%;padding:9px 12px 9px 34px;border:1px solid var(--line);border-radius:8px;font-size:13px;background:#fff;}
+  .search .si{position:absolute;left:11px;top:9px;color:var(--muted);}
+
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px 20px;}
+  .field{display:flex;flex-direction:column;gap:6px;}
+  .field.full{grid-column:1 / -1;}
+  .field label{font-size:12.5px;font-weight:600;color:var(--text);}
+  .field input,.field select,.field textarea{padding:9px 11px;border:1px solid var(--line);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(31,95,174,.12);}
+  .form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--line);}
+
+  .grid2{display:grid;grid-template-columns:2fr 1fr;gap:20px;}
+  @media(max-width:1100px){.cards{grid-template-columns:repeat(2,1fr);}.grid2{grid-template-columns:1fr;}.form-grid{grid-template-columns:1fr;}}
+  @media(max-width:720px){.roles{grid-template-columns:repeat(2,1fr);}.sidebar{display:none;}}
+
+  /* schedule grid */
+  .sched{width:100%;border-collapse:collapse;font-size:12px;}
+  .sched th,.sched td{border:1px solid var(--line);padding:0;text-align:center;}
+  .sched th{background:#f6f8fb;padding:8px;}
+  .sched td{height:46px;vertical-align:middle;}
+  .slot{margin:3px;border-radius:6px;padding:5px 4px;font-size:11px;font-weight:600;line-height:1.25;}
+
+  /* sensor */
+  .sensor{display:flex;align-items:center;gap:14px;background:#0f2238;color:#fff;border-radius:12px;padding:16px 18px;}
+  .sensor .dot{width:12px;height:12px;border-radius:50%;background:#35d07f;box-shadow:0 0 0 4px rgba(53,208,127,.25);}
+  .sensor .dot.off{background:#e05c4b;box-shadow:0 0 0 4px rgba(224,92,75,.25);}
+  .sensor .s-info b{display:block;font-size:14px;}
+  .sensor .s-info small{color:#9fb4cf;}
+  .pill-origin{font-size:11px;padding:2px 8px;border-radius:12px;}
+
+  .toast{position:fixed;bottom:24px;right:24px;background:var(--nav);color:#fff;padding:13px 18px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.25);font-size:13px;display:flex;align-items:center;gap:10px;opacity:0;transform:translateY(12px);transition:.25s;z-index:50;}
+  .toast.show{opacity:1;transform:translateY(0);}
+  .note{background:#eef4fb;border-left:3px solid var(--primary);border-radius:0 8px 8px 0;padding:11px 14px;font-size:12.5px;color:#30455f;margin:14px 0;}
+</style>
+</head>
+<body>
+
+<!-- ===================== LOGIN ===================== -->
+<div id="login">
+  <div class="login-card">
+    <div class="login-head">
+      <div class="brand"><div class="logo">SA</div></div>
+      <h1>Sistema Académico</h1>
+      <p>Institución de Educación Superior — Selecciona tu rol para ingresar</p>
+    </div>
+    <div class="roles" id="roleGrid"></div>
+    <div class="login-foot">
+      Prototipo del proyecto final · Ingeniería de Software II · 2026-2 · Jean Carlos Julio Caicedo
+    </div>
+  </div>
+</div>
+
+<!-- ===================== APP ===================== -->
+<div id="app">
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="sb-brand"><div class="logo">SA</div><span>Sistema<br>Académico</span></div>
+      <div class="sb-role" id="sbRole"></div>
+      <ul class="menu" id="menu"></ul>
+      <div class="sb-foot">v1.0 · Prototipo<br>Sistema Académico</div>
+    </aside>
+    <div class="main">
+      <div class="topbar">
+        <div class="crumbs" id="crumbs"></div>
+        <div class="user">
+          <div style="text-align:right">
+            <div class="u-name" id="uName"></div>
+            <div class="u-role" id="uRole"></div>
+          </div>
+          <div class="avatar" id="uAvatar"></div>
+          <button class="btn-out" onclick="logout()">Salir</button>
+        </div>
+      </div>
+      <div class="content" id="content"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================ DATOS (mock) ============================ */
+const DB = {
+  facultades:[
+    {cod:'F01',nombre:'Facultad de Ingeniería',programas:3,decano:'Ing. Patricia Salcedo'},
+    {cod:'F02',nombre:'Facultad de Ciencias Económicas',programas:2,decano:'Dr. Hernán Beltrán'},
+    {cod:'F03',nombre:'Facultad de Ciencias de la Salud',programas:2,decano:'Dra. Mónica Ariza'},
+  ],
+  programas:[
+    {cod:'P01',nombre:'Ingeniería de Software',creditos:160,facultad:'Facultad de Ingeniería'},
+    {cod:'P02',nombre:'Ingeniería Industrial',creditos:170,facultad:'Facultad de Ingeniería'},
+    {cod:'P03',nombre:'Ingeniería Electrónica',creditos:168,facultad:'Facultad de Ingeniería'},
+    {cod:'P04',nombre:'Administración de Empresas',creditos:150,facultad:'Facultad de Ciencias Económicas'},
+    {cod:'P05',nombre:'Contaduría Pública',creditos:152,facultad:'Facultad de Ciencias Económicas'},
+  ],
+  materias:[
+    {cod:'ISW2026',nombre:'Ingeniería de Software II',creditos:3},
+    {cod:'BD2025',nombre:'Bases de Datos',creditos:3},
+    {cod:'POO204',nombre:'Programación Orientada a Objetos',creditos:4},
+    {cod:'RED301',nombre:'Redes de Computadores',creditos:3},
+    {cod:'CAL101',nombre:'Cálculo Diferencial',creditos:4},
+    {cod:'EST210',nombre:'Estructuras de Datos',creditos:4},
+  ],
+  aulas:[
+    {cod:'A-301',nombre:'Aula 301 — Bloque A',sede:'Sede Centro',sensor:'SA-301'},
+    {cod:'A-302',nombre:'Aula 302 — Bloque A',sede:'Sede Centro',sensor:'SA-302'},
+    {cod:'LAB-201',nombre:'Laboratorio de Software',sede:'Sede Centro',sensor:'SA-201'},
+    {cod:'LAB-202',nombre:'Laboratorio de Redes',sede:'Sede Centro',sensor:'SA-202'},
+    {cod:'B-105',nombre:'Aula 105 — Bloque B',sede:'Sede Norte',sensor:'SA-105'},
+  ],
+  coordinadores:[
+    {id:'CO-1001',nombre:'Diana Restrepo Vargas',programa:'Ingeniería de Software',correo:'drestrepo@uni.edu.co',cel:'300 441 2290'},
+    {id:'CO-1002',nombre:'Óscar Peña Mejía',programa:'Ingeniería Industrial',correo:'opena@uni.edu.co',cel:'301 552 7781'},
+  ],
+  docentes:[
+    {id:'DO-2051',nombre:'Ronald Castro Urueta',materia:'Ingeniería de Software II',correo:'rcastro@uni.edu.co',cel:'300 118 4420'},
+    {id:'DO-2052',nombre:'Laura Gómez Prieto',materia:'Bases de Datos',correo:'lgomez@uni.edu.co',cel:'312 004 9912'},
+    {id:'DO-2053',nombre:'Andrés Martínez Soto',materia:'Programación O. O.',correo:'amartinez@uni.edu.co',cel:'305 889 1123'},
+    {id:'DO-2054',nombre:'Carolina Ruiz Nieto',materia:'Estructuras de Datos',correo:'cruiz@uni.edu.co',cel:'318 220 3345'},
+  ],
+  estudiantes:[
+    {id:'EST-1023',nombre:'Jean Carlos Julio Caicedo',programa:'Ingeniería de Software',semestre:7,correo:'jjulio@uni.edu.co',estado:'Activo'},
+    {id:'EST-1050',nombre:'María Fernanda López',programa:'Ingeniería de Software',semestre:7,correo:'mflopez@uni.edu.co',estado:'Activo'},
+    {id:'EST-1051',nombre:'Santiago Herrera Díaz',programa:'Ingeniería de Software',semestre:7,correo:'sherrera@uni.edu.co',estado:'Activo'},
+    {id:'EST-1052',nombre:'Valentina Ortiz Gómez',programa:'Ingeniería de Software',semestre:7,correo:'vortiz@uni.edu.co',estado:'Activo'},
+    {id:'EST-1053',nombre:'Juan David Mora',programa:'Ingeniería de Software',semestre:7,correo:'jdmora@uni.edu.co',estado:'Activo'},
+    {id:'EST-1054',nombre:'Daniela Rincón Pérez',programa:'Ingeniería de Software',semestre:6,correo:'drincon@uni.edu.co',estado:'Activo'},
+    {id:'EST-1055',nombre:'Camilo Andrés Vega',programa:'Ingeniería Industrial',semestre:5,correo:'cvega@uni.edu.co',estado:'Inactivo'},
+    {id:'EST-1056',nombre:'Laura Sofía Mendoza',programa:'Ingeniería de Software',semestre:7,correo:'lmendoza@uni.edu.co',estado:'Activo'},
+  ],
+  microcurriculos:[
+    {cod:'MC-ISW2',materia:'Ingeniería de Software II',programa:'Ingeniería de Software',creditos:3,docente:'Ronald Castro Urueta',periodo:'2026-2'},
+    {cod:'MC-BD',materia:'Bases de Datos',programa:'Ingeniería de Software',creditos:3,docente:'Laura Gómez Prieto',periodo:'2026-2'},
+    {cod:'MC-POO',materia:'Programación O. O.',programa:'Ingeniería de Software',creditos:4,docente:'Andrés Martínez Soto',periodo:'2026-2'},
+  ],
+  carga:[
+    {materia:'Ingeniería de Software II',docente:'Ronald Castro Urueta',aula:'LAB-201',grupo:'1',dia:'Martes',hora:'18:00 - 21:00'},
+    {materia:'Bases de Datos',docente:'Laura Gómez Prieto',aula:'A-301',grupo:'1',dia:'Lunes',hora:'16:00 - 19:00'},
+    {materia:'Programación O. O.',docente:'Andrés Martínez Soto',aula:'LAB-202',grupo:'2',dia:'Miércoles',hora:'18:00 - 21:00'},
+    {materia:'Estructuras de Datos',docente:'Carolina Ruiz Nieto',aula:'A-302',grupo:'1',dia:'Jueves',hora:'16:00 - 19:00'},
+  ],
+};
+
+/* Horario del estudiante (grilla) */
+const HORARIO = {
+  'Lunes':[{h:'16:00',t:'Bases de Datos',a:'A-301',c:'#e7f0fb'}],
+  'Martes':[{h:'18:00',t:'Ing. de Software II',a:'LAB-201',c:'#e5f5ec'}],
+  'Miércoles':[{h:'18:00',t:'Programación O. O.',a:'LAB-202',c:'#fdf2e2'}],
+  'Jueves':[{h:'16:00',t:'Estructuras de Datos',a:'A-302',c:'#f0e9fb'}],
+  'Viernes':[],
+};
+
+/* Asistencias del estudiante */
+const MIS_ASIST = [
+  {fecha:'2026-11-18',materia:'Ing. de Software II',estado:'Presente',origen:'sensor'},
+  {fecha:'2026-11-11',materia:'Ing. de Software II',estado:'Presente',origen:'sensor'},
+  {fecha:'2026-11-04',materia:'Ing. de Software II',estado:'Presente',origen:'manual'},
+  {fecha:'2026-10-28',materia:'Ing. de Software II',estado:'Ausente',origen:'sensor'},
+  {fecha:'2026-10-21',materia:'Ing. de Software II',estado:'Presente',origen:'sensor'},
+];
+
+/* ============================ ROLES Y MENÚS ============================ */
+const ROLES = {
+  admin:{label:'Administrador', nombre:'Admin · Soporte TI', ic:'🛡️'},
+  coordinador:{label:'Coordinador', nombre:'Diana Restrepo Vargas', ic:'🗂️'},
+  docente:{label:'Docente', nombre:'Ronald Castro Urueta', ic:'📘'},
+  estudiante:{label:'Estudiante', nombre:'Jean Carlos Julio Caicedo', ic:'🎓'},
+};
+const MENUS = {
+  admin:[
+    ['panel','Panel','▦'],['estudiantes','Estudiantes','🎓'],['docentes','Docentes','📘'],
+    ['coordinadores','Coordinadores','🗂️'],['facultades','Facultades','🏛️'],
+    ['programas','Programas','📚'],['materias','Materias','📄'],['aulas','Aulas y sensores','🏫'],
+  ],
+  coordinador:[
+    ['panel','Panel','▦'],['microcurriculos','Microcurrículos','📋'],
+    ['carga','Carga académica','🗓️'],['horarios','Horarios','⏰'],
+  ],
+  docente:[
+    ['panel','Panel','▦'],['mi_horario','Mi horario','⏰'],
+    ['asistencia','Registrar asistencia','📍'],['calificaciones','Calificaciones','✔️'],
+  ],
+  estudiante:[
+    ['panel','Panel','▦'],['mi_horario','Mi horario','⏰'],
+    ['mis_asistencias','Mis asistencias','📍'],['mi_microcurriculo','Mi microcurrículo','📋'],
+  ],
+};
+
+/* ============================ ESTADO ============================ */
+let state={role:null,screen:'panel'};
+
+/* ============================ LOGIN ============================ */
+function initLogin(){
+  const g=document.getElementById('roleGrid');
+  g.innerHTML=Object.entries(ROLES).map(([k,r])=>`
+    <div class="role" onclick="login('${k}')">
+      <div class="ic">${r.ic}</div><b>${r.label}</b>
+      <small>${k==='admin'?'Gestiona todo el sistema':k==='coordinador'?'Gestiona su programa':k==='docente'?'Dicta y evalúa':'Consulta su información'}</small>
+    </div>`).join('');
+}
+function login(role){
+  state.role=role;state.screen='panel';
+  document.getElementById('login').style.display='none';
+  document.getElementById('app').style.display='block';
+  const r=ROLES[role];
+  document.getElementById('sbRole').textContent=r.label;
+  document.getElementById('uName').textContent=r.nombre;
+  document.getElementById('uRole').textContent=r.label;
+  document.getElementById('uAvatar').textContent=r.nombre.split(' ').map(x=>x[0]).slice(0,2).join('');
+  render();
+}
+function logout(){
+  document.getElementById('app').style.display='none';
+  document.getElementById('login').style.display='flex';
+}
+
+/* ============================ RENDER SHELL ============================ */
+function go(screen){state.screen=screen;render();window.scrollTo(0,0);}
+function render(){
+  const menu=MENUS[state.role];
+  document.getElementById('menu').innerHTML=menu.map(([k,l,ic])=>
+    `<li><a class="${state.screen===k?'active':''}" onclick="go('${k}')"><span class="mi">${ic}</span>${l}</a></li>`).join('');
+  const cur=menu.find(m=>m[0]===state.screen);
+  document.getElementById('crumbs').innerHTML=`Sistema Académico · <b>${cur?cur[1]:''}</b>`;
+  document.getElementById('content').innerHTML=(SCREENS[state.screen]||(()=>'<p>En construcción</p>'))();
+}
+
+/* ============================ HELPERS ============================ */
+function title(t,s){return `<h1 class="page-title">${t}</h1><p class="page-sub">${s||''}</p>`;}
+function toolbar(ph,btn){
+  return `<div class="toolbar">
+    <div class="search"><span class="si">🔎</span><input placeholder="${ph||'Buscar...'}" oninput="filterTable(this)"></div>
+    ${btn?`<button class="btn btn-p" onclick="${btn.fn}">+ ${btn.label}</button>`:''}
+  </div>`;
+}
+function filterTable(inp){
+  const q=inp.value.toLowerCase();
+  const tb=inp.closest('.content').querySelector('tbody');
+  if(!tb)return;
+  [...tb.rows].forEach(r=>{r.style.display=r.textContent.toLowerCase().includes(q)?'':'none';});
+}
+function tablePanel(titleTxt,cols,rows,renderRow,toolbarHtml){
+  return `<div class="panel">
+    <div class="panel-h"><h3>${titleTxt}</h3><span class="badge b-gray">${rows.length} registros</span></div>
+    <div class="panel-b">${toolbarHtml||''}</div>
+    <div class="panel-b flush"><table><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
+    <tbody>${rows.map(renderRow).join('')}</tbody></table></div></div>`;
+}
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.innerHTML='✅ '+msg;t.classList.add('show');
+  clearTimeout(window.__tt);window.__tt=setTimeout(()=>t.classList.remove('show'),2600);
+}
+function saveForm(e,msg){e.preventDefault();toast(msg||'Registro guardado correctamente');go(e.target.dataset.back);return false;}
+
+/* ============================ PANTALLAS ============================ */
+const SCREENS={};
+
+/* ---- PANEL por rol ---- */
+SCREENS.panel=function(){
+  const r=state.role;
+  if(r==='admin'){
+    return title('Panel de administración','Resumen general del sistema académico')+
+    `<div class="cards">
+      ${stat('🎓','#e7f0fb','1.248','Estudiantes activos')}
+      ${stat('📘','#e5f5ec','86','Docentes')}
+      ${stat('📚','#fdf2e2','12','Programas')}
+      ${stat('🏫','#f0e9fb','40','Aulas con sensor')}
+    </div>
+    <div class="grid2">
+      ${tablePanel('Últimos movimientos',['Fecha','Usuario','Acción'],
+        [['2026-11-20','Admin','Alta de estudiante EST-1056'],['2026-11-19','Coordinador','Actualizó microcurrículo MC-ISW2'],['2026-11-18','Docente','Registró asistencia LAB-201'],['2026-11-18','Sensor SA-201','28 lecturas de asistencia']],
+        row=>`<tr><td>${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td></tr>`)}
+      <div class="panel"><div class="panel-h"><h3>Estado de sensores</h3></div><div class="panel-b">
+        ${DB.aulas.map(a=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)">
+          <span><b>${a.sensor}</b><br><small style="color:var(--muted)">${a.cod}</small></span>
+          <span class="badge ${a.cod==='B-105'?'b-bad':'b-ok'}">${a.cod==='B-105'?'Sin conexión':'En línea'}</span></div>`).join('')}
+      </div></div>
+    </div>`;
+  }
+  if(r==='coordinador'){
+    return title('Panel del coordinador','Programa: Ingeniería de Software · Periodo 2026-2')+
+    `<div class="cards">
+      ${stat('📚','#e7f0fb','14','Materias del programa')}
+      ${stat('📘','#e5f5ec','9','Docentes asignados')}
+      ${stat('📋','#fdf2e2','14','Microcurrículos')}
+      ${stat('🎓','#f0e9fb','312','Estudiantes')}
+    </div>
+    ${tablePanel('Carga académica del periodo',['Materia','Docente','Aula','Día','Hora'],DB.carga,
+      c=>`<tr><td><b>${c.materia}</b></td><td>${c.docente}</td><td>${c.aula}</td><td>${c.dia}</td><td>${c.hora}</td></tr>`)}`;
+  }
+  if(r==='docente'){
+    return title('Panel del docente','Docente: Ronald Castro Urueta')+
+    `<div class="cards">
+      ${stat('📄','#e7f0fb','3','Materias asignadas')}
+      ${stat('🎓','#e5f5ec','28','Estudiantes')}
+      ${stat('📍','#fdf2e2','15','Clases registradas')}
+      ${stat('✔️','#f0e9fb','92%','Asistencia promedio')}
+    </div>
+    <div class="note">Tienes una clase hoy: <b>Ingeniería de Software II</b> · 18:00 · LAB-201. Puedes registrar la asistencia desde el menú <b>Registrar asistencia</b>.</div>
+    ${tablePanel('Mi carga académica',['Materia','Grupo','Aula','Día','Hora'],DB.carga.filter(c=>c.docente==='Ronald Castro Urueta'),
+      c=>`<tr><td><b>${c.materia}</b></td><td>${c.grupo}</td><td>${c.aula}</td><td>${c.dia}</td><td>${c.hora}</td></tr>`)}`;
+  }
+  // estudiante
+  return title('Bienvenido, Jean','Ingeniería de Software · Semestre 7 · Periodo 2026-2')+
+  `<div class="cards">
+    ${stat('📄','#e7f0fb','5','Materias inscritas')}
+    ${stat('📚','#e5f5ec','17','Créditos')}
+    ${stat('📍','#fdf2e2','92%','Mi asistencia')}
+    ${stat('⭐','#f0e9fb','4.3','Promedio')}
+  </div>
+  <div class="note">Tu próxima clase: <b>Ingeniería de Software II</b> hoy a las 18:00 en LAB-201.</div>
+  ${tablePanel('Mis materias',['Código','Materia','Créditos','Docente'],
+    [['ISW2026','Ingeniería de Software II','3','Ronald Castro Urueta'],['BD2025','Bases de Datos','3','Laura Gómez Prieto'],['POO204','Programación O. O.','4','Andrés Martínez Soto'],['EST210','Estructuras de Datos','4','Carolina Ruiz Nieto']],
+    m=>`<tr><td>${m[0]}</td><td><b>${m[1]}</b></td><td>${m[2]}</td><td>${m[3]}</td></tr>`)}`;
+};
+function stat(ic,bg,val,lab){return `<div class="stat"><div class="s-ic" style="background:${bg}">${ic}</div><div class="s-val">${val}</div><div class="s-lab">${lab}</div></div>`;}
+
+/* ---- ADMIN: entidades ---- */
+SCREENS.estudiantes=function(){
+  return title('Estudiantes','Gestión de estudiantes de la institución')+
+  tablePanel('Listado de estudiantes',['ID','Nombre','Programa','Sem.','Correo','Estado','Acciones'],DB.estudiantes,
+    e=>`<tr><td>${e.id}</td><td><b>${e.nombre}</b></td><td>${e.programa}</td><td>${e.semestre}</td><td>${e.correo}</td>
+    <td><span class="badge ${e.estado==='Activo'?'b-ok':'b-gray'}">${e.estado}</span></td>
+    <td class="actions"><button class="btn-link" onclick="go('form_estudiante')">Editar</button></td></tr>`,
+    toolbar('Buscar estudiante por nombre, ID o programa...',{label:'Nuevo estudiante',fn:"go('form_estudiante')"}));
+};
+SCREENS.form_estudiante=function(){
+  return title('Nuevo estudiante','Registrar un estudiante en el sistema')+
+  `<div class="panel"><div class="panel-b"><form data-back="estudiantes" onsubmit="return saveForm(event,'Estudiante registrado correctamente')">
+    <div class="form-grid">
+      <div class="field"><label>Tipo de documento</label><select><option>Cédula de ciudadanía</option><option>Tarjeta de identidad</option><option>Cédula de extranjería</option></select></div>
+      <div class="field"><label>Número de documento</label><input required placeholder="1.045.xxx.xxx"></div>
+      <div class="field"><label>Nombres</label><input required placeholder="Nombres"></div>
+      <div class="field"><label>Apellidos</label><input required placeholder="Apellidos"></div>
+      <div class="field"><label>Fecha de nacimiento</label><input type="date"></div>
+      <div class="field"><label>Sexo</label><select><option>Femenino</option><option>Masculino</option><option>Otro</option></select></div>
+      <div class="field"><label>Celular</label><input placeholder="3xx xxx xxxx"></div>
+      <div class="field"><label>Correo</label><input type="email" placeholder="correo@uni.edu.co"></div>
+      <div class="field"><label>Facultad</label><select>${DB.facultades.map(f=>`<option>${f.nombre}</option>`).join('')}</select></div>
+      <div class="field"><label>Programa</label><select>${DB.programas.map(p=>`<option>${p.nombre}</option>`).join('')}</select></div>
+      <div class="field"><label>Puntaje ICFES</label><input type="number" placeholder="000"></div>
+      <div class="field"><label>SISBÉN</label><input placeholder="Grupo / puntaje"></div>
+    </div>
+    <div class="form-actions"><button type="button" class="btn btn-s" onclick="go('estudiantes')">Cancelar</button><button class="btn btn-p">Guardar estudiante</button></div>
+  </form></div></div>`;
+};
+SCREENS.docentes=function(){
+  return title('Docentes','Gestión del cuerpo docente')+
+  tablePanel('Listado de docentes',['ID','Nombre','Materia','Correo','Celular','Acciones'],DB.docentes,
+    d=>`<tr><td>${d.id}</td><td><b>${d.nombre}</b></td><td>${d.materia}</td><td>${d.correo}</td><td>${d.cel}</td>
+    <td class="actions"><button class="btn-link" onclick="go('form_docente')">Editar</button></td></tr>`,
+    toolbar('Buscar docente...',{label:'Nuevo docente',fn:"go('form_docente')"}));
+};
+SCREENS.form_docente=function(){
+  return title('Nuevo docente','Registrar un docente')+genericForm('docentes',[
+    ['Nombres','input'],['Apellidos','input'],['Documento','input'],['Correo','input'],['Celular','input'],
+    ['Materia que dicta','select',DB.materias.map(m=>m.nombre)]
+  ],'Docente registrado correctamente');
+};
+SCREENS.coordinadores=function(){
+  return title('Coordinadores','Coordinadores de programa')+
+  tablePanel('Listado de coordinadores',['ID','Nombre','Programa','Correo','Celular','Acciones'],DB.coordinadores,
+    c=>`<tr><td>${c.id}</td><td><b>${c.nombre}</b></td><td>${c.programa}</td><td>${c.correo}</td><td>${c.cel}</td>
+    <td class="actions"><button class="btn-link" onclick="go('form_coordinador')">Editar</button></td></tr>`,
+    toolbar('Buscar coordinador...',{label:'Nuevo coordinador',fn:"go('form_coordinador')"}));
+};
+SCREENS.form_coordinador=function(){
+  return title('Nuevo coordinador','Registrar un coordinador de programa')+genericForm('coordinadores',[
+    ['Nombres','input'],['Apellidos','input'],['Documento','input'],['Correo','input'],['Celular','input'],
+    ['Programa','select',DB.programas.map(p=>p.nombre)]
+  ],'Coordinador registrado correctamente');
+};
+SCREENS.facultades=function(){
+  return title('Facultades','Estructura académica — facultades')+
+  tablePanel('Facultades',['Código','Nombre','Decano','Programas','Acciones'],DB.facultades,
+    f=>`<tr><td>${f.cod}</td><td><b>${f.nombre}</b></td><td>${f.decano}</td><td><span class="badge b-info">${f.programas}</span></td>
+    <td class="actions"><button class="btn-link" onclick="go('form_facultad')">Editar</button></td></tr>`,
+    toolbar('Buscar facultad...',{label:'Nueva facultad',fn:"go('form_facultad')"}));
+};
+SCREENS.form_facultad=function(){return title('Nueva facultad','')+genericForm('facultades',[['Nombre de la facultad','input'],['Decano','input'],['Número de programas','input']],'Facultad registrada');};
+SCREENS.programas=function(){
+  return title('Programas','Programas académicos ofrecidos')+
+  tablePanel('Programas',['Código','Programa','Facultad','Créditos','Acciones'],DB.programas,
+    p=>`<tr><td>${p.cod}</td><td><b>${p.nombre}</b></td><td>${p.facultad}</td><td>${p.creditos}</td>
+    <td class="actions"><button class="btn-link" onclick="go('form_programa')">Editar</button></td></tr>`,
+    toolbar('Buscar programa...',{label:'Nuevo programa',fn:"go('form_programa')"}));
+};
+SCREENS.form_programa=function(){return title('Nuevo programa','')+genericForm('programas',[['Nombre del programa','input'],['Facultad','select',DB.facultades.map(f=>f.nombre)],['Número de créditos','input']],'Programa registrado');};
+SCREENS.materias=function(){
+  return title('Materias','Catálogo de materias')+
+  tablePanel('Materias',['Código','Materia','Créditos','Acciones'],DB.materias,
+    m=>`<tr><td>${m.cod}</td><td><b>${m.nombre}</b></td><td>${m.creditos}</td>
+    <td class="actions"><button class="btn-link" onclick="go('form_materia')">Editar</button></td></tr>`,
+    toolbar('Buscar materia...',{label:'Nueva materia',fn:"go('form_materia')"}));
+};
+SCREENS.form_materia=function(){return title('Nueva materia','')+genericForm('materias',[['Código','input'],['Nombre de la materia','input'],['Número de créditos','input']],'Materia registrada');};
+SCREENS.aulas=function(){
+  return title('Aulas y sensores','Espacios físicos y sus sensores de asistencia')+
+  tablePanel('Aulas',['Código','Nombre','Sede','Sensor','Estado','Acciones'],DB.aulas,
+    a=>`<tr><td>${a.cod}</td><td><b>${a.nombre}</b></td><td>${a.sede}</td><td>${a.sensor}</td>
+    <td><span class="badge ${a.cod==='B-105'?'b-bad':'b-ok'}">${a.cod==='B-105'?'Sin conexión':'En línea'}</span></td>
+    <td class="actions"><button class="btn-link" onclick="go('form_aula')">Editar</button></td></tr>`,
+    toolbar('Buscar aula...',{label:'Nueva aula',fn:"go('form_aula')"}));
+};
+SCREENS.form_aula=function(){return title('Nueva aula','')+genericForm('aulas',[['Código','input'],['Nombre del aula','input'],['Sede','input'],['Código del sensor','input']],'Aula registrada');};
+
+function genericForm(back,fields,msg){
+  return `<div class="panel"><div class="panel-b"><form data-back="${back}" onsubmit="return saveForm(event,'${msg}')">
+    <div class="form-grid">
+      ${fields.map(f=>`<div class="field"><label>${f[0]}</label>${
+        f[1]==='select'?`<select>${f[2].map(o=>`<option>${o}</option>`).join('')}</select>`:
+        `<input required placeholder="${f[0]}">`}</div>`).join('')}
+    </div>
+    <div class="form-actions"><button type="button" class="btn btn-s" onclick="go('${back}')">Cancelar</button><button class="btn btn-p">Guardar</button></div>
+  </form></div></div>`;
+}
+
+/* ---- COORDINADOR ---- */
+SCREENS.microcurriculos=function(){
+  return title('Microcurrículos','Contenido programático de las asignaturas del programa')+
+  tablePanel('Microcurrículos',['Código','Materia','Docente','Créditos','Periodo','Acciones'],DB.microcurriculos,
+    m=>`<tr><td>${m.cod}</td><td><b>${m.materia}</b></td><td>${m.docente}</td><td>${m.creditos}</td><td>${m.periodo}</td>
+    <td class="actions"><button class="btn-link" onclick="go('ver_microcurriculo')">Ver</button></td></tr>`,
+    toolbar('Buscar microcurrículo...',{label:'Nuevo microcurrículo',fn:"go('form_microcurriculo')"}));
+};
+SCREENS.form_microcurriculo=function(){
+  return title('Nuevo microcurrículo','Registrar el contenido programático de una materia')+
+  `<div class="panel"><div class="panel-b"><form data-back="microcurriculos" onsubmit="return saveForm(event,'Microcurrículo guardado')">
+    <div class="form-grid">
+      <div class="field"><label>Programa</label><select>${DB.programas.map(p=>`<option>${p.nombre}</option>`).join('')}</select></div>
+      <div class="field"><label>Materia</label><select>${DB.materias.map(m=>`<option>${m.nombre}</option>`).join('')}</select></div>
+      <div class="field"><label>Número de créditos</label><input type="number" required></div>
+      <div class="field"><label>Docente responsable</label><select>${DB.docentes.map(d=>`<option>${d.nombre}</option>`).join('')}</select></div>
+      <div class="field full"><label>Objetivo general</label><textarea rows="2" placeholder="Objetivo general de la asignatura"></textarea></div>
+      <div class="field full"><label>Competencias genéricas</label><textarea rows="2"></textarea></div>
+      <div class="field"><label>Primer parcial (%)</label><input type="number" placeholder="30"></div>
+      <div class="field"><label>Segundo parcial (%)</label><input type="number" placeholder="30"></div>
+    </div>
+    <div class="form-actions"><button type="button" class="btn btn-s" onclick="go('microcurriculos')">Cancelar</button><button class="btn btn-p">Guardar</button></div>
+  </form></div></div>`;
+};
+SCREENS.ver_microcurriculo=function(){
+  return title('Microcurrículo — Ingeniería de Software II','MC-ISW2 · Periodo 2026-2')+
+  `<div class="grid2">
+    <div class="panel"><div class="panel-h"><h3>Información general</h3></div><div class="panel-b">
+      ${kv('Materia','Ingeniería de Software II')}${kv('Programa','Ingeniería de Software')}${kv('Créditos','3')}
+      ${kv('Docente','Ronald Castro Urueta')}${kv('Naturaleza','Teórico-práctica')}${kv('Departamento','Ingeniería de Sistemas')}
+    </div></div>
+    <div class="panel"><div class="panel-h"><h3>Evaluación</h3></div><div class="panel-b">
+      ${kv('Primer parcial','30%')}${kv('Segundo parcial','30%')}${kv('Proyecto final','40%')}
+    </div></div>
+  </div>
+  <div class="panel"><div class="panel-h"><h3>Plan de microcurrículo (contenidos)</h3></div><div class="panel-b flush">
+    <table><thead><tr><th>N°</th><th>Unidad temática</th><th>Horas</th></tr></thead><tbody>
+      ${[['1','Ingeniería de requerimientos','6'],['2','Pruebas unitarias y complejidad','9'],['3','Diagramas de contexto y de clases','9'],['4','Modelos de comportamiento','6'],['5','Sistemas críticos y seguridad','12'],['6','Bases de datos y sistemas en tiempo real','9']].map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')}
+    </tbody></table>
+  </div></div>
+  <button class="btn btn-s" onclick="go('microcurriculos')">← Volver</button>`;
+};
+function kv(k,v){return `<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line)"><span style="color:var(--muted)">${k}</span><b>${v}</b></div>`;}
+SCREENS.carga=function(){
+  return title('Carga académica','Asignación de docentes, materias, aulas y horarios')+
+  tablePanel('Carga académica 2026-2',['Materia','Docente','Aula','Grupo','Día','Hora','Acciones'],DB.carga,
+    c=>`<tr><td><b>${c.materia}</b></td><td>${c.docente}</td><td>${c.aula}</td><td>${c.grupo}</td><td>${c.dia}</td><td>${c.hora}</td>
+    <td class="actions"><button class="btn-link" onclick="go('form_carga')">Editar</button></td></tr>`,
+    toolbar('Buscar...',{label:'Nueva asignación',fn:"go('form_carga')"}));
+};
+SCREENS.form_carga=function(){
+  return title('Nueva asignación de carga','')+
+  `<div class="panel"><div class="panel-b"><form data-back="carga" onsubmit="return saveForm(event,'Asignación guardada')">
+    <div class="form-grid">
+      <div class="field"><label>Materia</label><select>${DB.materias.map(m=>`<option>${m.nombre}</option>`).join('')}</select></div>
+      <div class="field"><label>Docente</label><select>${DB.docentes.map(d=>`<option>${d.nombre}</option>`).join('')}</select></div>
+      <div class="field"><label>Aula</label><select>${DB.aulas.map(a=>`<option>${a.cod}</option>`).join('')}</select></div>
+      <div class="field"><label>Grupo</label><input value="1"></div>
+      <div class="field"><label>Día</label><select><option>Lunes</option><option>Martes</option><option>Miércoles</option><option>Jueves</option><option>Viernes</option><option>Sábado</option></select></div>
+      <div class="field"><label>Hora</label><input placeholder="18:00 - 21:00"></div>
+    </div>
+    <div class="form-actions"><button type="button" class="btn btn-s" onclick="go('carga')">Cancelar</button><button class="btn btn-p">Guardar</button></div>
+  </form></div></div>`;
+};
+SCREENS.horarios=function(){
+  return title('Horarios','Consulta de horarios de docentes y estudiantes')+
+  `<div class="toolbar"><div class="field" style="max-width:260px"><label>Ver horario de</label>
+    <select><option>Grupo 1 — Ingeniería de Software II</option><option>Docente Ronald Castro</option><option>Estudiante Jean Julio</option></select></div></div>`+
+  scheduleGrid();
+};
+
+/* ---- DOCENTE ---- */
+SCREENS.mi_horario=function(){
+  return title('Mi horario','Horario del periodo 2026-2')+scheduleGrid();
+};
+function scheduleGrid(){
+  const dias=['Lunes','Martes','Miércoles','Jueves','Viernes'];
+  const horas=['14:00','16:00','18:00','20:00'];
+  let body='';
+  horas.forEach(h=>{
+    body+=`<tr><td style="background:#f6f8fb;font-weight:600">${h}</td>`;
+    dias.forEach(d=>{
+      const s=(HORARIO[d]||[]).find(x=>x.h.startsWith(h.slice(0,2)));
+      body+=`<td>${s?`<div class="slot" style="background:${s.c}">${s.t}<br><small>${s.a}</small></div>`:''}</td>`;
+    });
+    body+='</tr>';
+  });
+  return `<div class="panel"><div class="panel-b flush"><table class="sched"><thead><tr><th>Hora</th>${dias.map(d=>`<th>${d}</th>`).join('')}</tr></thead><tbody>${body}</tbody></table></div></div>`;
+}
+SCREENS.calificaciones=function(){
+  return title('Calificaciones','Ingeniería de Software II · Grupo 1')+
+  `<div class="toolbar"><div class="field" style="max-width:280px"><label>Materia</label><select><option>Ingeniería de Software II — Grupo 1</option></select></div>
+   <div class="field" style="max-width:180px"><label>Corte</label><select><option>Tercer corte</option><option>Segundo corte</option><option>Primer corte</option></select></div></div>`+
+  tablePanel('Notas del corte',['Estudiante','Parcial','Proyecto','Definitiva','Acciones'],
+    DB.estudiantes.filter(e=>e.programa==='Ingeniería de Software'&&e.estado==='Activo'),
+    e=>`<tr><td><b>${e.nombre}</b></td>
+      <td><input style="width:60px;padding:5px;border:1px solid var(--line);border-radius:6px" value="${(3.5+Math.random()*1.4).toFixed(1)}"></td>
+      <td><input style="width:60px;padding:5px;border:1px solid var(--line);border-radius:6px" value="${(3.8+Math.random()*1.1).toFixed(1)}"></td>
+      <td><b>${(3.7+Math.random()*1.2).toFixed(1)}</b></td>
+      <td class="actions"><span class="badge b-ok">Aprobó</span></td></tr>`)+
+  `<button class="btn btn-p" onclick="toast('Calificaciones guardadas')">Guardar calificaciones</button>`;
+};
+
+/* ---- ASISTENCIA (módulo estrella, con sensor) ---- */
+let ASIST={registrados:[],manual:false,sensorOn:true};
+SCREENS.asistencia=function(){
+  if(ASIST.registrados.length===0 && !ASIST.inited){ASIST.inited=true;}
+  const inscritos=DB.estudiantes.filter(e=>e.programa==='Ingeniería de Software'&&e.estado==='Activo');
+  const regIds=ASIST.registrados.map(r=>r.id);
+  return title('Registrar asistencia','Ingeniería de Software II · Grupo 1 · '+new Date().toLocaleDateString('es-CO'))+
+  `<div class="grid2">
+    <div>
+      <div class="sensor" style="margin-bottom:16px">
+        <span class="dot ${ASIST.sensorOn?'':'off'}"></span>
+        <div class="s-info"><b>Sensor SA-201 — ${ASIST.sensorOn?'Conectado':'Sin respuesta'}</b>
+          <small>Aula LAB-201 · ${ASIST.sensorOn?'Lecturas automáticas activas':'Falla del sensor — use el registro manual'}</small></div>
+        <div style="margin-left:auto;display:flex;gap:8px">
+          ${ASIST.sensorOn?`<button class="btn btn-p btn-sm" onclick="sensorRead()">Simular lectura del sensor</button>
+            <button class="btn btn-s btn-sm" onclick="sensorFail()">Simular falla</button>`
+          :`<button class="btn btn-s btn-sm" onclick="sensorRestore()">Restablecer sensor</button>`}
+        </div>
+      </div>
+      ${!ASIST.sensorOn?`<div class="note" style="border-color:var(--bad);background:var(--badbg);color:var(--bad)">⚠️ El sensor dejó de responder. Se activó el <b>registro manual de respaldo (contingencia)</b> para no perder la asistencia del día.</div>`:''}
+      ${tablePanel('Asistencia registrada',['Estudiante','Hora','Origen','Estado'],ASIST.registrados.length?ASIST.registrados:[{vacio:1}],
+        r=>r.vacio?`<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:26px">Aún no hay registros. ${ASIST.sensorOn?'Usa el sensor o el registro manual.':'Usa el registro manual.'}</td></tr>`:
+        `<tr><td><b>${r.nombre}</b></td><td>${r.hora}</td>
+         <td><span class="pill-origin ${r.origen==='sensor'?'b-info':'b-warn'}">${r.origen}</span></td>
+         <td><span class="badge ${r.estado==='Presente'?'b-ok':'b-bad'}">${r.estado}</span></td></tr>`)}
+    </div>
+    <div class="panel"><div class="panel-h"><h3>Lista del aula (${inscritos.length})</h3></div><div class="panel-b" style="max-height:520px;overflow:auto">
+      ${inscritos.map(e=>{const done=regIds.includes(e.id);return `<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line)">
+        <span><b style="font-size:13px">${e.nombre}</b><br><small style="color:var(--muted)">${e.id}</small></span>
+        ${done?`<span class="badge b-ok">Registrado</span>`:
+          `<span style="display:flex;gap:5px"><button class="btn btn-p btn-sm" onclick="markManual('${e.id}','Presente')">Presente</button>
+           <button class="btn btn-s btn-sm" onclick="markManual('${e.id}','Ausente')">Ausente</button></span>`}
+      </div>`;}).join('')}
+    </div></div>
+  </div>
+  <div class="note">Este módulo refleja el diseño del proyecto: el <b>Sensor de Asistencia</b> registra automáticamente al estudiante (clase <b>SensorAsistencia → Asistencia → DetalleAsistencia</b>), y ante una falla del sensor queda el <b>registro manual de respaldo</b> como mecanismo de contingencia.</div>`;
+};
+function nowHora(){return new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});}
+function sensorRead(){
+  const inscritos=DB.estudiantes.filter(e=>e.programa==='Ingeniería de Software'&&e.estado==='Activo');
+  const regIds=ASIST.registrados.map(r=>r.id);
+  const next=inscritos.find(e=>!regIds.includes(e.id));
+  if(!next){toast('Todos los estudiantes ya fueron registrados');return;}
+  ASIST.registrados.push({id:next.id,nombre:next.nombre,hora:nowHora(),origen:'sensor',estado:'Presente'});
+  toast('Sensor: '+next.nombre.split(' ')[0]+' registrado');render();
+}
+function markManual(id,estado){
+  const e=DB.estudiantes.find(x=>x.id===id);
+  ASIST.registrados.push({id,nombre:e.nombre,hora:nowHora(),origen:'manual',estado});
+  toast('Registro manual: '+e.nombre.split(' ')[0]+' — '+estado);render();
+}
+function sensorFail(){ASIST.sensorOn=false;toast('Se simuló una falla del sensor');render();}
+function sensorRestore(){ASIST.sensorOn=true;toast('Sensor restablecido');render();}
+
+/* ---- ESTUDIANTE ---- */
+SCREENS.mis_asistencias=function(){
+  const pres=MIS_ASIST.filter(a=>a.estado==='Presente').length;
+  return title('Mis asistencias','Ingeniería de Software II · Periodo 2026-2')+
+  `<div class="cards">
+    ${stat('📅','#e7f0fb',MIS_ASIST.length,'Clases registradas')}
+    ${stat('✅','#e5f5ec',pres,'Asistencias')}
+    ${stat('❌','#fbe9e7',MIS_ASIST.length-pres,'Inasistencias')}
+    ${stat('📊','#f0e9fb',Math.round(pres/MIS_ASIST.length*100)+'%','Cumplimiento')}
+  </div>`+
+  tablePanel('Historial de asistencia',['Fecha','Materia','Origen','Estado'],MIS_ASIST,
+    a=>`<tr><td>${a.fecha}</td><td>${a.materia}</td>
+    <td><span class="pill-origin ${a.origen==='sensor'?'b-info':'b-warn'}">${a.origen}</span></td>
+    <td><span class="badge ${a.estado==='Presente'?'b-ok':'b-bad'}">${a.estado}</span></td></tr>`);
+};
+SCREENS.mi_microcurriculo=function(){return SCREENS.ver_microcurriculo().replace('go(\'microcurriculos\')','go(\'panel\')');};
+
+/* ============================ INIT ============================ */
+initLogin();
+</script>
+</body>
+</html>
