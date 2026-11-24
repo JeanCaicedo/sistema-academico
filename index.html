@@ -29,7 +29,7 @@
   .roles{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:24px 34px 10px;}
   .role{border:1px solid var(--line);border-radius:12px;padding:18px 12px;text-align:center;background:#fff;transition:.15s;}
   .role:hover{border-color:var(--primary);box-shadow:0 6px 18px rgba(31,95,174,.15);transform:translateY(-2px);}
-  .role .ic{font-size:30px;margin-bottom:8px;}
+  .role .ic{color:var(--primary);margin-bottom:10px;display:flex;justify-content:center;}
   .role b{display:block;color:var(--nav);}
   .role small{color:var(--muted);}
   .login-foot{padding:14px 34px 26px;color:var(--muted);text-align:center;font-size:12.5px;border-top:1px solid var(--line);margin-top:14px;}
@@ -145,11 +145,12 @@
     <div class="login-head">
       <div class="brand"><div class="logo">SA</div></div>
       <h1>Sistema Académico</h1>
-      <p>Institución de Educación Superior — Selecciona tu rol para ingresar</p>
+      <p>Seleccione su perfil para ingresar al sistema</p>
     </div>
     <div class="roles" id="roleGrid"></div>
     <div class="login-foot">
-      Prototipo del proyecto final · Ingeniería de Software II · 2026-2 · Jean Carlos Julio Caicedo
+      &copy; 2026 Sistema Académico
+      <div style="margin-top:4px;font-size:11.5px;color:#9aa6b6">Desarrollado por Jean Carlos Julio Caicedo</div>
     </div>
   </div>
 </div>
@@ -206,11 +207,11 @@ const DB = {
     {cod:'EST210',nombre:'Estructuras de Datos',creditos:4},
   ],
   aulas:[
-    {cod:'A-301',nombre:'Aula 301 — Bloque A',sede:'Sede Centro',sensor:'SA-301'},
-    {cod:'A-302',nombre:'Aula 302 — Bloque A',sede:'Sede Centro',sensor:'SA-302'},
+    {cod:'A-301',nombre:'Aula 301 - Bloque A',sede:'Sede Centro',sensor:'SA-301'},
+    {cod:'A-302',nombre:'Aula 302 - Bloque A',sede:'Sede Centro',sensor:'SA-302'},
     {cod:'LAB-201',nombre:'Laboratorio de Software',sede:'Sede Centro',sensor:'SA-201'},
     {cod:'LAB-202',nombre:'Laboratorio de Redes',sede:'Sede Centro',sensor:'SA-202'},
-    {cod:'B-105',nombre:'Aula 105 — Bloque B',sede:'Sede Norte',sensor:'SA-105'},
+    {cod:'B-105',nombre:'Aula 105 - Bloque B',sede:'Sede Norte',sensor:'SA-105'},
   ],
   coordinadores:[
     {id:'CO-1001',nombre:'Diana Restrepo Vargas',programa:'Ingeniería de Software',correo:'drestrepo@uni.edu.co',cel:'300 441 2290'},
@@ -264,11 +265,12 @@ const MIS_ASIST = [
 ];
 
 /* ============================ ROLES Y MENÚS ============================ */
+const SVG='width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"';
 const ROLES = {
-  admin:{label:'Administrador', nombre:'Admin · Soporte TI', ic:'🛡️'},
-  coordinador:{label:'Coordinador', nombre:'Diana Restrepo Vargas', ic:'🗂️'},
-  docente:{label:'Docente', nombre:'Ronald Castro Urueta', ic:'📘'},
-  estudiante:{label:'Estudiante', nombre:'Jean Carlos Julio Caicedo', ic:'🎓'},
+  admin:{label:'Administrador', nombre:'Administrador del sistema', ic:`<svg ${SVG}><path d="M12 3l7 3v5c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9V6l7-3z"/></svg>`},
+  coordinador:{label:'Coordinador', nombre:'Diana Restrepo Vargas', ic:`<svg ${SVG}><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>`},
+  docente:{label:'Docente', nombre:'Ronald Castro Urueta', ic:`<svg ${SVG}><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H18v15H6.5A2.5 2.5 0 0 0 4 20.5V5.5z"/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H18"/></svg>`},
+  estudiante:{label:'Estudiante', nombre:'Jean Carlos Julio Caicedo', ic:`<svg ${SVG}><path d="M3 9l9-4 9 4-9 4-9-4z"/><path d="M7 11.5V16c0 1.1 2.2 2 5 2s5-.9 5-2v-4.5"/><path d="M21 9.5V13"/></svg>`},
 };
 const MENUS = {
   admin:[
@@ -476,7 +478,7 @@ SCREENS.form_coordinador=function(){
   ],'Coordinador registrado correctamente');
 };
 SCREENS.facultades=function(){
-  return title('Facultades','Estructura académica — facultades')+
+  return title('Facultades','Estructura académica - facultades')+
   tablePanel('Facultades',['Código','Nombre','Decano','Programas','Acciones'],DB.facultades,
     f=>`<tr><td>${f.cod}</td><td><b>${f.nombre}</b></td><td>${f.decano}</td><td><span class="badge b-info">${f.programas}</span></td>
     <td class="actions"><button class="btn-link" onclick="go('form_facultad')">Editar</button></td></tr>`,
@@ -545,7 +547,7 @@ SCREENS.form_microcurriculo=function(){
   </form></div></div>`;
 };
 SCREENS.ver_microcurriculo=function(){
-  return title('Microcurrículo — Ingeniería de Software II','MC-ISW2 · Periodo 2026-2')+
+  return title('Microcurrículo - Ingeniería de Software II','MC-ISW2 · Periodo 2026-2')+
   `<div class="grid2">
     <div class="panel"><div class="panel-h"><h3>Información general</h3></div><div class="panel-b">
       ${kv('Materia','Ingeniería de Software II')}${kv('Programa','Ingeniería de Software')}${kv('Créditos','3')}
@@ -587,7 +589,7 @@ SCREENS.form_carga=function(){
 SCREENS.horarios=function(){
   return title('Horarios','Consulta de horarios de docentes y estudiantes')+
   `<div class="toolbar"><div class="field" style="max-width:260px"><label>Ver horario de</label>
-    <select><option>Grupo 1 — Ingeniería de Software II</option><option>Docente Ronald Castro</option><option>Estudiante Jean Julio</option></select></div></div>`+
+    <select><option>Grupo 1 - Ingeniería de Software II</option><option>Docente Ronald Castro</option><option>Estudiante Jean Julio</option></select></div></div>`+
   scheduleGrid();
 };
 
@@ -611,7 +613,7 @@ function scheduleGrid(){
 }
 SCREENS.calificaciones=function(){
   return title('Calificaciones','Ingeniería de Software II · Grupo 1')+
-  `<div class="toolbar"><div class="field" style="max-width:280px"><label>Materia</label><select><option>Ingeniería de Software II — Grupo 1</option></select></div>
+  `<div class="toolbar"><div class="field" style="max-width:280px"><label>Materia</label><select><option>Ingeniería de Software II - Grupo 1</option></select></div>
    <div class="field" style="max-width:180px"><label>Corte</label><select><option>Tercer corte</option><option>Segundo corte</option><option>Primer corte</option></select></div></div>`+
   tablePanel('Notas del corte',['Estudiante','Parcial','Proyecto','Definitiva','Acciones'],
     DB.estudiantes.filter(e=>e.programa==='Ingeniería de Software'&&e.estado==='Activo'),
@@ -634,8 +636,8 @@ SCREENS.asistencia=function(){
     <div>
       <div class="sensor" style="margin-bottom:16px">
         <span class="dot ${ASIST.sensorOn?'':'off'}"></span>
-        <div class="s-info"><b>Sensor SA-201 — ${ASIST.sensorOn?'Conectado':'Sin respuesta'}</b>
-          <small>Aula LAB-201 · ${ASIST.sensorOn?'Lecturas automáticas activas':'Falla del sensor — use el registro manual'}</small></div>
+        <div class="s-info"><b>Sensor SA-201 - ${ASIST.sensorOn?'Conectado':'Sin respuesta'}</b>
+          <small>Aula LAB-201 · ${ASIST.sensorOn?'Lecturas automáticas activas':'Falla del sensor - use el registro manual'}</small></div>
         <div style="margin-left:auto;display:flex;gap:8px">
           ${ASIST.sensorOn?`<button class="btn btn-p btn-sm" onclick="sensorRead()">Simular lectura del sensor</button>
             <button class="btn btn-s btn-sm" onclick="sensorFail()">Simular falla</button>`
@@ -672,7 +674,7 @@ function sensorRead(){
 function markManual(id,estado){
   const e=DB.estudiantes.find(x=>x.id===id);
   ASIST.registrados.push({id,nombre:e.nombre,hora:nowHora(),origen:'manual',estado});
-  toast('Registro manual: '+e.nombre.split(' ')[0]+' — '+estado);render();
+  toast('Registro manual: '+e.nombre.split(' ')[0]+' - '+estado);render();
 }
 function sensorFail(){ASIST.sensorOn=false;toast('Se simuló una falla del sensor');render();}
 function sensorRestore(){ASIST.sensorOn=true;toast('Sensor restablecido');render();}
